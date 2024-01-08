@@ -1,124 +1,88 @@
 # Importar la librería de Cassandra
 from cassandra.cluster import Cluster
 
-# Conexión al cluster Cassandra
+# Crear una nueva conexion al cluster
 cluster = Cluster(['localhost'], port=9042)
 session = cluster.connect()
 
-# Creación y uso del espacio de nombre
-session.execute("CREATE KEYSPACE IF NOT EXISTS KSTienda WITH replication = {'class':'SimpleStrategy', 'replication_factor':1}")
+# Eliminar Keyspaces, usar solo para eliminar el anterior Keyspaces
+#session.execute("DROP KEYSPACE IF EXISTS kstienda")
 
-session.execute("USE KSTienda")
+# Creación y uso del espacio de nombre
+session.execute("""
+                CREATE KEYSPACE IF NOT EXISTS kstienda 
+                WITH replication = {'class':'SimpleStrategy', 'replication_factor':1}
+                """)
+
+session.set_keyspace('kstienda')
 
 # Creación de una tabla 
-session.execute("CREATE TABLE IF NOT EXISTS Producto (id UUID PRIMARY KEY, nombre TEXT, descripcion TEXT, precio FLOAT, unidades INT)")
+session.execute("""
+                CREATE TABLE IF NOT EXISTS productos(
+                id INT, 
+                nombre TEXT, 
+                precio FLOAT,
+                fecha_compra DATE,
+                ciudad TEXT, 
+                unidades INT,
+                compra_en_promocion BOOLEAN, 
+                rango_eterio TEXT,
+                genero TEXT,
+                credito INT,
+                PRIMARY KEY (id, nombre)
+                )
+                """)
+
+# Lista de productos
+productos = [
+    (101, 'Laptop', 1200.99, '2022-01-10', 'New York', 50, False, '26-35', 'Male', 800),
+    (102, 'Smartphone', 799.99, '2022-02-15', 'Los Angeles', 120, True, '18-25', 'Female', 600),
+    (103, 'Smartwatch', 349.99, '2022-03-20', 'Chicago', 80, False, '36-45', 'Male', 400),
+    (104, 'Headphones', 149.99, '2022-04-25', 'Houston', 60, True, '26-35', 'Female', 200),
+    (105, 'Camera', 899.99, '2022-05-30', 'Phoenix', 90, False, '46-55', 'Male', 1000),
+    (106, 'Tablet', 499.99, '2022-06-05', 'Philadelphia', 75, True, '18-25', 'Female', 700),
+    (107, 'Gaming Console', 299.99, '2022-07-10', 'San Antonio', 110, False, '26-35', 'Male', 1200),
+    (108, 'Fitness Tracker', 129.99, '2022-08-15', 'San Diego', 40, True, '36-45', 'Female', 300),
+    (109, 'Wireless Speaker', 79.99, '2022-09-20', 'Dallas', 95, False, '46-55', 'Male', 500),
+    (110, 'E-reader', 199.99, '2022-10-25', 'San Jose', 70, True, '18-25', 'Female', 400),
+    (111, 'Drones', 599.99, '2022-11-30', 'Austin', 55, False, '26-35', 'Male', 900),
+    (112, 'VR Headset', 349.99, '2022-12-05', 'Jacksonville', 65, True, '36-45', 'Female', 800),
+    (113, 'Coffee Maker', 69.99, '2023-01-10', 'Indianapolis', 30, False, '46-55', 'Male', 150),
+    (114, 'Blender', 39.99, '2023-02-15', 'San Francisco', 85, True, '18-25', 'Female', 250),
+    (115, 'Vacuum Cleaner', 199.99, '2023-03-20', 'Columbus', 100, False, '26-35', 'Male', 350),
+    (116, 'Smart Thermostat', 129.99, '2023-04-25', 'Fort Worth', 45, True, '36-45', 'Female', 200),
+    (117, 'Portable Charger', 24.99, '2023-05-30', 'Charlotte', 110, False, '46-55', 'Male', 100),
+    (118, 'Bluetooth Earbuds', 49.99, '2023-06-05', 'Detroit', 75, True, '18-25', 'Female', 80),
+    (119, 'Car Dash Cam', 149.99, '2023-07-10', 'El Paso', 90, False, '26-35', 'Male', 300),
+    (120, 'Electric Toothbrush', 79.99, '2023-08-15', 'Seattle', 55, True, '36-45', 'Female', 120),
+    (121, 'Air Purifier', 299.99, '2023-09-20', 'Denver', 65, False, '46-55', 'Male', 400),
+    (122, 'Portable Projector', 199.99, '2023-10-25', 'Washington', 80, True, '18-25', 'Female', 600),
+    (123, 'External Hard Drive', 129.99, '2023-11-30', 'Boston', 40, False, '26-35', 'Male', 200),
+    (124, 'Home Security Camera', 89.99, '2023-12-05', 'Nashville', 95, True, '36-45', 'Female', 300),
+    (125, 'Wireless Mouse', 19.99, '2024-01-10', 'Baltimore', 120, False, '46-55', 'Male', 50),
+    (126, 'Sleep Tracker', 59.99, '2024-02-15', 'Oklahoma City', 70, True, '18-25', 'Female', 350),
+    (127, 'Wireless Keyboard', 29.99, '2024-03-20', 'Louisville', 55, False, '26-35', 'Male', 100),
+    (128, 'Home Espresso Machine', 249.99, '2024-04-25', 'Portland', 90, True, '36-45', 'Female', 700),
+    (129, 'Noise-Canceling Headphones', 149.99, '2024-05-30', 'Las Vegas', 65, False, '46-55', 'Male', 800),
+    (130, 'Smart Refrigerator', 999.99, '2024-06-05', 'Milwaukee', 40, True, '18-25', 'Female', 1200),
+    (131, 'Solar Charger', 39.99, '2024-07-10', 'Albuquerque', 85, False, '26-35', 'Male', 200),
+    (132, 'Robot Vacuum', 349.99, '2024-08-15', 'Tucson', 110, True, '36-45', 'Female', 300),
+    (133, 'Air Fryer', 89.99, '2024-09-20', 'Fresno', 95, False, '46-55', 'Male', 400),
+    (134, 'Smart Doorbell', 149.99, '2024-10-25', 'Sacramento', 75, True, '18-25', 'Female', 500),
+    (135, 'Electric Scooter', 299.99, '2024-11-30', 'Mesa', 60, False, '26-35', 'Male', 600),
+    (136, 'Bluetooth Speaker', 129.99, '2024-12-05', 'Atlanta', 30, True, '36-45', 'Female', 700),
+    (137, 'Waterproof Camera', 179.99, '2025-01-10', 'Kansas City', 50, False, '46-55', 'Male', 800),
+    (138, 'Fitness Smartwatch', 249.99, '2025-02-15', 'Cleveland', 120, True, '18-25', 'Female', 900),
+    (139, 'Desktop Computer', 799.99, '2025-03-20', 'Virginia Beach', 85, False, '26-35', 'Male', 1000),
+    (140, 'Electric Shaver', 69.99, '2025-04-25', 'Omaha', 65, True, '36-45', 'Female', 1100),
+]
 
 # Inserción de valores a la tabla
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Camiseta Roja', 'Camiseta de algodón roja', 15.99, 50)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Silla de Oficina', 'Silla ergonómica para oficina', 129.99, 20)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Botines de Fútbol', 'Botines deportivos para fútbol', 49.99, 30)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Gafas de Sol Aviador', 'Gafas de sol estilo aviador', 39.99, 40)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Teclado Mecánico RGB', 'Teclado mecánico con retroiluminación RGB', 89.99, 15)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Libreta de Notas', 'Libreta de notas con tapa dura', 5.99, 100)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Reloj Inteligente', 'Reloj con funciones inteligentes', 129.99, 25)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Mochila para Portátil', 'Mochila acolchada para portátil', 49.99, 30)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Cámara de Seguridad', 'Cámara de seguridad para interiores', 79.99, 10)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Auriculares Inalámbricos', 'Auriculares con conexión Bluetooth', 59.99, 40)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Lámpara de Escritorio', 'Lámpara LED ajustable para escritorio', 29.99, 20)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Pelota de Baloncesto', 'Pelota oficial de baloncesto', 19.99, 30)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Cargador Inalámbrico', 'Base de carga inalámbrica para dispositivos', 24.99, 50)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Mesa de Centro', 'Mesa de centro para sala de estar', 99.99, 8)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Batería Externa', 'Batería portátil para dispositivos móviles', 34.99, 25)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Juego de Destornilladores', 'Set de destornilladores de precisión', 12.99, 60)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Kit de Herramientas para Jardín', 'Herramientas básicas para jardinería', 29.99, 18)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Termo de Acero Inoxidable', 'Termo de doble capa para líquidos', 19.99, 35)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Cuaderno de Dibujo', 'Cuaderno especial para dibujo artístico', 9.99, 50)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Lápiz USB', 'Almacenamiento portátil en forma de lápiz', 14.99, 22)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Funda para Tablet', 'Funda protectora para tablet de 10 pulgadas', 19.99, 45)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Juego de Tazas de Café', 'Set de tazas de porcelana para café', 29.99, 28)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Calculadora Científica', 'Calculadora avanzada para cálculos científicos', 19.99, 15)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Colchón Ortopédico', 'Colchón ortopédico de espuma viscoelástica', 299.99, 5)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Laptop Ultradelgada', 'Laptop ultradelgada con pantalla HD', 799.99, 12)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Cepillo de Dientes Eléctrico', 'Cepillo de dientes con tecnología sónica', 49.99, 20)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Bolsa de Viaje', 'Bolsa de viaje resistente al agua', 39.99, 30)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Set de Cubiertos de Acero', 'Set completo de cubiertos de acero inoxidable', 49.99, 40)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Pendrive de 128GB', 'Unidad flash USB de alta capacidad', 39.99, 18)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Hervidor de Agua Eléctrico', 'Hervidor con capacidad para 1.7 litros', 29.99, 25)")
-session.execute("INSERT INTO Producto (id, nombre, descripcion, precio, unidades) VALUES (uuid(), 'Bicicleta de Montaña', 'Bicicleta todoterreno para montaña', 499.99, 8)")
+for producto in productos:
+    session.execute("""
+                    INSERT INTO productos (id, nombre, precio, fecha_compra, ciudad, unidades, compra_en_promocion, rango_eterio, genero, credito) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """, producto)
 
-# Consultas (Queries)
-''' 
-    1) Mostrar todos los registros.
-'''
-result = session.execute("SELECT * FROM Producto")
-
-for row in result:
-    print(row)
-
-''' 
-    2) Borrar el ultimo registro ingresado en la base de datos.
-'''
-session.execute("DELETE FROM Producto WHERE id = <Inserte el ID del registro que desea eliminar>")
-
-''' 
-    3) Buscar y mostrar el producto con el precio más alto.
-'''
-max_price_row = session.execute("SELECT MAX(precio) AS max_price FROM Producto").one()
-
-max_price = max_price_row.max_price
-    
-result = session.execute("SELECT * FROM Producto WHERE precio = %s ALLOW FILTERING", (max_price,))
-
-for row in result:
-    print(row)
-
-''' 
-    4) Buscar y mostrar el producto con el precio más bajo.
-'''
-min_price_row = session.execute("SELECT MIN(precio) AS min_price FROM Producto").one()
-
-min_price = min_price_row.min_price
-    
-result = session.execute("SELECT * FROM Producto WHERE precio = %s ALLOW FILTERING", (min_price,))
-
-for row in result:
-    print(row)
-
-''' 
-    5) Buscar y mostrar el producto con la mayor cantidad de unidades.
-'''
-max_units_row = session.execute("SELECT MAX(unidades) AS max_units FROM Producto").one()
-
-max_units = max_units_row.max_units
-    
-result = session.execute("SELECT * FROM Producto WHERE unidades = %s ALLOW FILTERING", (max_units,))
-
-for row in result:
-    print(row)
-
-''' 
-    6) Buscar y mostrar el producto con la menor cantidad de unidades.
-'''
-min_units_row = session.execute("SELECT MIN(unidades) AS min_units FROM Producto").one()
-
-min_units = min_units_row.min_units
-    
-result = session.execute("SELECT * FROM Producto WHERE unidades = %s ALLOW FILTERING", (min_units,))
-
-for row in result:
-    print(row)
-
-''' 
-    7) Buscar y mostrar los productos cuyos nombres comiencen por la letra "C".
-'''
-result = session.execute("SELECT * FROM Producto")
-
-for row in result:
-    if row.nombre.startswith('C'):
-        print(row)
-
-''' 
-    8) Eliminar todos los registros de la tabla Producto.
-'''
-
-session.execute("TRUNCATE Producto")
+# Cerrar la conexion
+cluster.shutdown()
