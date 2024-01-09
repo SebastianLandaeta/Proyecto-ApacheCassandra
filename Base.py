@@ -16,6 +16,9 @@ session.execute("""
 
 session.set_keyspace('kstienda')
 
+# Eliminar tabla
+session.execute("DROP TABLE IF EXISTS productos")
+
 # Creación de una tabla 
 session.execute("""
                 CREATE TABLE IF NOT EXISTS productos(
