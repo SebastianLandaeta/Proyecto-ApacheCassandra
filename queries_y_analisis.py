@@ -127,7 +127,7 @@ else:
     print("Género:", genero_input, "==> Promedio de crédito:", result.promedio_credito)
 
 # Calcular promedio de crédito entregado según rango eterio
-print("\nCalculo de promedio de crédito entregado a personas según su rango eterio")
+print("\nCálculo de promedio de crédito entregado a personas según su rango eterio")
 rango_eterio_input = input("Introduce el rango eterio (por ejemplo, '26-35'): ").strip()
 
 if '-' not in rango_eterio_input or not all(char.isdigit() or char == '-' for char in rango_eterio_input):
@@ -158,6 +158,12 @@ result = session.execute("""
                          WHERE fecha_compra = '2022-09-20' AND ciudad = 'Dallas' AND genero = 'Male' ALLOW FILTERING
                          """).one()
 print("Producto:", result.nombre, "==> Unidades vendidas:", result.total_unidades)
+
+# Consulta opcional
+''' 
+    2) Borrar un registro de la base de datos.
+'''
+# session.execute("DELETE FROM Producto WHERE id = <Inserte el ID del registro que desea eliminar>")
 
 # Cerrar la conexion
 cluster.shutdown()
