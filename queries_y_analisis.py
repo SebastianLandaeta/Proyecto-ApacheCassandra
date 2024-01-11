@@ -99,6 +99,57 @@ for row in result:
         row_data[-3] = f"${row.precio:.2f}"
         print(row_data)
 
+'''
+   7) producto en promocion
+'''
+query = "SELECT nombre FROM productos WHERE compra_en_promocion = %s ALLOW FILTERING"
+result = session.execute(query, (True,))
+print("\nConsulta 7: Productos en promocion")
+for row in result:
+    print(row.nombre)
+
+''' 
+    8) actualizar un registro a partir de su ID.
+'''
+id = input("ingrese el id que desea modificar: ")
+id = int(id)
+query = "SELECT * FROM productos WHERE id = %s"
+result = session.execute(query, (id,))
+# Imprimir el resultado
+print("\nel registro que desea actualizar es: \n")
+for row in result:
+    nombre = row.nombre
+    row_data = list(row)
+    row_data[-3] = f"${row.precio:.2f}"
+    print(row_data)
+
+# Solicitar los nuevos valores por consola
+nuevo_precio = float(input("Ingrese el nuevo precio: "))
+nueva_ciudad = input("Ingrese la nueva ciudad: ")
+nueva_fecha_compra = input("Ingrese la nueva fecha de compra (en formato 'YYYY-MM-DD'): ")
+nuevas_unidades = int(input("Ingrese las nuevas unidades: "))
+nueva_compra_en_promocion = input("La compra está en promoción (True/False): ").lower() == 'true'
+nuevo_rango_eterio = input("Ingrese el nuevo rango eterio: ")
+nuevo_genero = input("Ingrese el nuevo género: ")
+nuevo_credito = int(input("Ingrese el nuevo crédito: "))
+
+query = """
+    UPDATE productos
+    SET precio = %s, ciudad = %s, fecha_compra = %s, unidades = %s,
+        compra_en_promocion = %s, rango_eterio = %s, genero = %s, credito = %s
+    WHERE id = %s AND nombre = %s
+"""
+
+session.execute(query, (
+    nuevo_precio, nueva_ciudad, nueva_fecha_compra, nuevas_unidades,
+    nueva_compra_en_promocion, nuevo_rango_eterio, nuevo_genero, nuevo_credito,
+    id, nombre
+))
+
+print("\nactualizado")
+
+
+
 # Cunsultas y análisis OLAP
 #  Producto más vendido según género
 print("\nProducto más vendido según el género")
@@ -141,7 +192,7 @@ else:
     if result.promedio_rango_eterio != 0:
         print("Rango eterio:", rango_eterio_input, "==> Promedio de crédito:", result.promedio_rango_eterio)
     else:
-        print("No hay créditos para el rango etrio ", rango_eterio_input)
+        print("No hay créditos para el rango eterio ", rango_eterio_input)
 
 # Otras consultas y analisis OLAP
 print("\nProducto más vendido en una ciudad según el género")
@@ -161,9 +212,49 @@ print("Producto:", result.nombre, "==> Unidades vendidas:", result.total_unidade
 
 # Consulta opcional
 ''' 
-    2) Borrar un registro de la base de datos.
+    8) Borrar un registro de la base de datos.
 '''
-# session.execute("DELETE FROM Producto WHERE id = <Inserte el ID del registro que desea eliminar>")
+print("\nBorrar un registro de la base de datos")
+
+#funcion para validar existencia del registro que desea borrar
+def validar_existencia(id):
+   query = "SELECT COUNT(*) FROM productos WHERE id = %s"
+   #query = "DELETE FROM productos WHERE id = %s"
+   result = session.execute(query, (int(id),))
+   count = result.one()[0]
+   return count > 0
+
+#solicitar el id que desea borrar
+id = input("Ingrese el ID del registro que desea eliminar: ")
+
+if validar_existencia(int(id)): 
+    # El ID existe, proceder con la eliminación
+    query = "DELETE FROM productos WHERE id = %s"
+    result = session.execute(query, (int(id),))
+    print(f"\nRegistro con ID {id} eliminado exitosamente.")
+
+    #volver a mostrar la tabla
+    result = session.execute("SELECT * FROM productos")
+
+    # Crear tabla para mostrar los resultados
+    tabla = PrettyTable()
+    tabla.field_names = result.column_names
+
+    for row in result:
+        row_data = list(row)
+        row_data[-3] = f"${row.precio:.2f}"
+        tabla.add_row(row_data)
+
+    # Mostrar la tabla por pantalla
+    print("Mostrar actualizacion de todos los registros")
+    print(tabla)
+else:
+    print(f"El registro con ID {id} no existe en la base de datos.")
+
+
+
+
+
 
 # Cerrar la conexion
 cluster.shutdown()
