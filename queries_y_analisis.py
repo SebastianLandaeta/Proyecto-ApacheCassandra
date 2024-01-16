@@ -100,23 +100,24 @@ for row in result:
         print(row_data)
 
 '''
-   7) producto en promocion
+   7) Producto en promoción
 '''
 query = "SELECT nombre FROM productos WHERE compra_en_promocion = %s ALLOW FILTERING"
 result = session.execute(query, (True,))
-print("\nConsulta 7: Productos en promocion")
+print("\nConsulta 7: Productos en promoción")
 for row in result:
     print(row.nombre)
 
 ''' 
-    8) actualizar un registro a partir de su ID.
+    8) Actualizar un registro a partir de su ID.
 '''
-id = input("ingrese el id que desea modificar: ")
+id = input("ingrese el ID que desea modificar: ")
 id = int(id)
 query = "SELECT * FROM productos WHERE id = %s"
 result = session.execute(query, (id,))
+
 # Imprimir el resultado
-print("\nel registro que desea actualizar es: \n")
+print("\nEl registro que desea actualizar es: \n")
 for row in result:
     nombre = row.nombre
     row_data = list(row)
@@ -146,12 +147,10 @@ session.execute(query, (
     id, nombre
 ))
 
-print("\nactualizado")
+print("\nActualizado")
 
-
-
-# Cunsultas y análisis OLAP
-#  Producto más vendido según género
+# Consultas y análisis OLAP
+# Producto más vendido según género
 print("\nProducto más vendido según el género")
 genero_input = input("Introduce el género ('Male' o 'Female'): ").strip().capitalize()
 
@@ -213,10 +212,10 @@ print("Producto:", result.nombre, "==> Unidades vendidas:", result.total_unidade
 # Consulta opcional
 ''' 
     8) Borrar un registro de la base de datos.
-'''
+
 print("\nBorrar un registro de la base de datos")
 
-#funcion para validar existencia del registro que desea borrar
+# Funcion para validar existencia del registro que desea borrar
 def validar_existencia(id):
    query = "SELECT COUNT(*) FROM productos WHERE id = %s"
    #query = "DELETE FROM productos WHERE id = %s"
@@ -224,7 +223,7 @@ def validar_existencia(id):
    count = result.one()[0]
    return count > 0
 
-#solicitar el id que desea borrar
+# Solicitar el ID que desea borrar
 id = input("Ingrese el ID del registro que desea eliminar: ")
 
 if validar_existencia(int(id)): 
@@ -233,7 +232,7 @@ if validar_existencia(int(id)):
     result = session.execute(query, (int(id),))
     print(f"\nRegistro con ID {id} eliminado exitosamente.")
 
-    #volver a mostrar la tabla
+    # Volver a mostrar la tabla
     result = session.execute("SELECT * FROM productos")
 
     # Crear tabla para mostrar los resultados
@@ -250,11 +249,7 @@ if validar_existencia(int(id)):
     print(tabla)
 else:
     print(f"El registro con ID {id} no existe en la base de datos.")
-
-
-
-
-
+'''
 
 # Cerrar la conexion
 cluster.shutdown()
