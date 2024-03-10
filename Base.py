@@ -1,27 +1,27 @@
 # Importar la librería de Cassandra
 from cassandra.cluster import Cluster
 
-# Crear una nueva conexion al cluster
+# Crear una nueva conexión al cluster
 cluster = Cluster(['localhost'], port=9042)
 session = cluster.connect()
 
-# Eliminar Keyspaces, usar solo para eliminar el anterior Keyspaces
-#session.execute("DROP KEYSPACE IF EXISTS kstienda")
+# Eliminar Keyspace (Espacio de nombre)
+# session.execute("DROP KEYSPACE IF EXISTS kstienda")
 
-# Creación y uso del espacio de nombre
+# Creación y uso del Keyspace
 session.execute("""
-                CREATE KEYSPACE IF NOT EXISTS kstienda 
+                CREATE KEYSPACE IF NOT EXISTS KStienda 
                 WITH replication = {'class':'SimpleStrategy', 'replication_factor':1}
                 """)
 
-session.set_keyspace('kstienda')
+session.set_keyspace('KStienda')
 
 # Eliminar tabla
-session.execute("DROP TABLE IF EXISTS productos")
+# session.execute("DROP TABLE IF EXISTS productos")
 
 # Creación de una tabla 
 session.execute("""
-                CREATE TABLE IF NOT EXISTS productos(
+                CREATE TABLE IF NOT EXISTS Producto(
                 id INT, 
                 nombre TEXT, 
                 precio FLOAT,
@@ -83,7 +83,7 @@ productos = [
 # Inserción de valores a la tabla
 for producto in productos:
     session.execute("""
-                    INSERT INTO productos (id, nombre, precio, fecha_compra, ciudad, unidades, compra_en_promocion, rango_eterio, genero, credito) 
+                    INSERT INTO Producto (id, nombre, precio, fecha_compra, ciudad, unidades, compra_en_promocion, rango_eterio, genero, credito) 
                     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """, producto)
 
